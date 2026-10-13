@@ -1,0 +1,82 @@
+/*
+ * Core grid styles. Deliberately framework-free (no Tailwind) so the grid can
+ * ship as a standalone package. Theme via the --vg-color-* variables.
+ */
+.vg-viewport {
+  --vg-color-bg: #fff;
+  --vg-color-header-bg: #f4f4f5;
+  --vg-color-border: #e4e4e7;
+  --vg-color-text: #18181b;
+  --vg-color-row-alt: #fafafa;
+
+  position: relative;
+  overflow: auto;
+  /* Layout/paint inside can't affect the page, and vice versa. Requires an
+     explicit height, which the grid always sets. */
+  contain: strict;
+  background: var(--vg-color-bg);
+  color: var(--vg-color-text);
+  font-size: 13px;
+  border: 1px solid var(--vg-color-border);
+  box-sizing: border-box;
+}
+
+.vg-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: var(--vg-total-width);
+  min-width: 100%;
+  background: var(--vg-color-header-bg);
+  font-weight: 600;
+}
+
+.vg-body {
+  position: relative;
+  width: var(--vg-total-width);
+  min-width: 100%;
+}
+
+.vg-window {
+  /* transform is compositor-only: moving the window never triggers layout. */
+  will-change: transform;
+}
+
+.vg-row {
+  display: grid;
+  grid-template-columns: var(--vg-template);
+  height: var(--vg-row-height);
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--vg-color-border);
+}
+
+.vg-header-row {
+  height: var(--vg-header-height);
+}
+
+.vg-row-alt {
+  background: var(--vg-color-row-alt);
+}
+
+.vg-cell {
+  padding: 0 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  /* Row height minus the 1px border, so text is vertically centred. */
+  line-height: calc(var(--vg-row-height) - 1px);
+}
+
+.vg-header-row .vg-cell {
+  line-height: calc(var(--vg-header-height) - 1px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .vg-viewport {
+    --vg-color-bg: #18181b;
+    --vg-color-header-bg: #27272a;
+    --vg-color-border: #3f3f46;
+    --vg-color-text: #f4f4f5;
+    --vg-color-row-alt: #1f1f23;
+  }
+}
