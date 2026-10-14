@@ -1,1 +1,31 @@
 @import 'tailwindcss';
+
+.demo-controls button {
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+.demo-controls button:hover {
+  box-shadow: 0 0 0 2px #3b82f680;
+}
+.demo-controls button:active {
+  transform: scale(.94);
+}
+.demo-controls button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 3px;
+}
+.demo-feedback {
+  border-left: 3px solid #3b82f6;
+  padding: 8px 12px;
+  background: #3b82f61a;
+  animation: feedback-flash 600ms ease-out;
+}
+@keyframes feedback-flash {
+  from { background: #3b82f64d; }
+  to { background: #3b82f61a; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-controls button { transition: none; }
+  .demo-controls button:active { transform: none; }
+  .demo-feedback { animation: none; }
+}

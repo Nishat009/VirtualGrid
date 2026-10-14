@@ -30,6 +30,8 @@ export function App() {
   const [size, setSize] = useState<Size>(100_000);
   const [range, setRange] = useState<RowRange | null>(null);
   const [domNodes, setDomNodes] = useState(0);
+  const [feedback, setFeedback] = useState({ text: 'Choose a dataset or use Top / Bottom to navigate.', count: 0 });
+  const notify = (text: string) => setFeedback(previous => ({ text, count: previous.count + 1 }));
   const gridWrapRef = useRef<HTMLDivElement>(null);
 
   const { rows, genMs } = useMemo(() => {
@@ -46,6 +48,7 @@ export function App() {
   const scrollTo = (where: 'top' | 'bottom') => {
     const viewport = gridWrapRef.current?.querySelector('[role="grid"]');
     viewport?.scrollTo({ top: where === 'top' ? 0 : viewport.scrollHeight });
+    notify(where === 'top' ? 'Moved to the first row.' : `Moved to the last row (${size.toLocaleString()}).`);
   };
 
   return (
@@ -57,13 +60,16 @@ export function App() {
         </p>
       </header>
 
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <div className="demo-controls mb-3 flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium">Rows:</span>
         {SIZES.map((s) => (
           <button
             key={s}
             type="button"
-            onClick={() => setSize(s)}
+            onClick={() => {
+              setSize(s);
+              notify(`${s.toLocaleString()} rows selected.`);
+            }}
             aria-pressed={size === s}
             className="rounded border border-zinc-300 px-3 py-1 text-sm aria-pressed:bg-zinc-900 aria-pressed:text-white dark:border-zinc-600 dark:aria-pressed:bg-zinc-100 dark:aria-pressed:text-zinc-900"
           >
@@ -79,15 +85,21 @@ export function App() {
         </button>
       </div>
 
-      <dl className="mb-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+      <p key={feedback.count} role="status" className="demo-feedback mb-3 text-sm">
+        {feedback.text}
+      </p>
+
+      <dl className="mb-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-5">
+        <Stat label="Total rows" value={size.toLocaleString()} />
         <Stat label="Data generation" value={`${genMs.toFixed(0)} ms`} />
-        <Stat label="Rendered rows" value={range ? `${range.start.toLocaleString()} – ${(range.end - 1).toLocaleString()}` : '–'} />
+        <Stat label="Rendered serials (with buffer)" value={range ? `${(range.start + 1).toLocaleString()} – ${range.end.toLocaleString()}` : '–'} />
         <Stat label="Rows in DOM" value={range ? String(range.end - range.start) : '–'} />
         <Stat label="Grid DOM nodes" value={String(domNodes)} />
       </dl>
 
       <div ref={gridWrapRef}>
         <VirtGrid
+          key={size}
           rows={rows}
           columns={COLUMNS}
           rowHeight={ROW_HEIGHT}
