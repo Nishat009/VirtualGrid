@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { MAX_SAFE_SCROLL_HEIGHT } from './core/range';
 import { useVirtualRows } from './useVirtualRows';
 import type { ColumnDef, VirtGridProps } from './types';
@@ -10,9 +10,11 @@ interface RowProps<TRow> {
   row: TRow;
   rowIndex: number;
   columns: readonly ColumnDef<TRow>[];
+  selected: boolean;
+  onSelect: (index: number) => void;
 }
 
-function RowImpl<TRow>({ row, rowIndex, columns }: RowProps<TRow>): ReactNode {
+function RowImpl<TRow>({ row, rowIndex, columns, selected, onSelect }: RowProps<TRow>): ReactNode {
   return (
     // aria-rowindex is 1-based and the header row is 1.
     // Parity comes from the data index, not :nth-child, which would flip
@@ -21,6 +23,15 @@ function RowImpl<TRow>({ row, rowIndex, columns }: RowProps<TRow>): ReactNode {
       className={rowIndex % 2 === 1 ? 'vg-row vg-row-alt' : 'vg-row'}
       role="row"
       aria-rowindex={rowIndex + 2}
+      aria-selected={selected}
+      tabIndex={0}
+      onClick={() => onSelect(rowIndex)}
+      onKeyDown={event => {
+        if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          onSelect(rowIndex);
+        }
+      }}
     >
       {columns.map((col, colIndex) => (
         <div key={col.id} className="vg-cell" role="gridcell" aria-colindex={colIndex + 1}>
@@ -48,6 +59,7 @@ export function VirtGrid<TRow>({
   'aria-label': ariaLabel,
 }: VirtGridProps<TRow>): ReactNode {
   const viewportRef = useRef<HTMLDivElement>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const range = useVirtualRows(viewportRef, {
     rowCount: rows.length,
@@ -89,7 +101,8 @@ export function VirtGrid<TRow>({
     const row = rows[i];
     if (row === undefined) continue;
     rendered.push(
-      <Row key={getRowKey ? getRowKey(row, i) : i} row={row} rowIndex={i} columns={columns} />,
+      <Row key={getRowKey ? getRowKey(row, i) : i} row={row} rowIndex={i} columns={columns}
+        selected={selectedIndex === i} onSelect={setSelectedIndex} />,
     );
   }
 

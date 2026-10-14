@@ -58,6 +58,18 @@
   background: var(--vg-color-row-alt);
 }
 
+.vg-body .vg-row { cursor: pointer; }
+.vg-body .vg-row:hover { background: color-mix(in srgb, #3b82f6 10%, var(--vg-color-bg)); }
+.vg-body .vg-row:active { background: color-mix(in srgb, #3b82f6 25%, var(--vg-color-bg)); }
+.vg-body .vg-row[aria-selected="true"] {
+  background: color-mix(in srgb, #3b82f6 20%, var(--vg-color-bg));
+  box-shadow: inset 3px 0 #3b82f6;
+}
+.vg-body .vg-row:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+}
+
 .vg-cell {
   padding: 0 8px;
   overflow: hidden;
